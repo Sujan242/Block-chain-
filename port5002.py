@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 import datetime
 import hashlib
 import json
-from flask import Flask,jsonify
+from flask import Flask,jsonify,request
 
 class Blockchain:
 
@@ -59,7 +59,7 @@ class Blockchain:
 
 	def add_node(self,address):
 		parsed_url=urlparse(address)
-		self.nodes.add(parsed_url.netlock)
+		self.nodes.add(parsed_url.netloc)
 
 	def update_chain(self):
 		longest_chain=None
@@ -84,7 +84,7 @@ blockchain=Blockchain()
 @app.route('/mine_block',methods=['GET'])
 def mine_block():
 	prev_block=blockchain.get_previous_block()
-	blockchain.add_transaction(node_adress,"Sujan",5)
+	blockchain.add_transaction(node_adress,"Karthik",5)
 	block=blockchain.create_block(blockchain.pow(prev_block['proof']),blockchain.hash(prev_block))
 	response={'transactions':block['transactions'],'index':block['index'],'proof':block['proof'],'timestamp':block['timestamp'],'previous_hash':block['previous_hash'],'message':"congrats"}
 	print(prev_block)
@@ -115,16 +115,16 @@ def connect_node():
 	json=request.get_json()
 	nodes=json.get('nodes')
 	for node in nodes:
-		blockchain.add(node)
+		blockchain.add_node(node)
 	response={'message':'Nodes connected','Nodes':list(blockchain.nodes)}
 	return jsonify(response),201
 
 @app.route('/replace_chain',methods=['GET'])
 def replace_chain():
-	response={'message':blockchain.update_chain(blockchain.chain)}
+	response={'message':blockchain.update_chain()}
 	return jsonify(response),200
 
-# app.run(host='0.0.0.0',port=5000)
+app.run(host='0.0.0.0',port=5002)
 
 
 

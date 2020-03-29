@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 import datetime
 import hashlib
 import json
-from flask import Flask,jsonify
+from flask import Flask,jsonify,request
 
 class Blockchain:
 
@@ -59,7 +59,7 @@ class Blockchain:
 
 	def add_node(self,address):
 		parsed_url=urlparse(address)
-		self.nodes.add(parsed_url.netlock)
+		self.nodes.add(parsed_url.netloc)
 
 	def update_chain(self):
 		longest_chain=None
@@ -98,7 +98,7 @@ def get_chain():
 
 @app.route('/is_valid',methods=['GET'])
 def is_valid():
-	response={'message':blockchain.is_chain_valid(blockchain.chain)}
+	response={'message':blockchain.is_chain_valid()}
 	return jsonify(response),200
 
 
@@ -115,7 +115,7 @@ def connect_node():
 	json=request.get_json()
 	nodes=json.get('nodes')
 	for node in nodes:
-		blockchain.add(node)
+		blockchain.add_node(node)
 	response={'message':'Nodes connected','Nodes':list(blockchain.nodes)}
 	return jsonify(response),201
 
@@ -124,7 +124,7 @@ def replace_chain():
 	response={'message':blockchain.update_chain(blockchain.chain)}
 	return jsonify(response),200
 
-# app.run(host='0.0.0.0',port=5000)
+app.run(host='0.0.0.0',port=5001)
 
 
 
